@@ -482,18 +482,70 @@
 <div class="list" id="list"></div>
 <div class="copy-toast" id="copyToast">Скопировано</div>
 
+<!-- Экран блокировки (показывается если нет доступа) -->
+<div id="authBlock" style="display:none;position:fixed;inset:0;z-index:9999;
+  background:var(--tg-secondary);display:none;flex-direction:column;
+  align-items:center;justify-content:center;padding:32px;text-align:center;">
+  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--tg-hint)" stroke-width="1.5" style="margin-bottom:20px">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  </svg>
+  <div style="font-size:18px;font-weight:700;color:var(--tg-text);margin-bottom:8px">Нет доступа</div>
+  <div style="font-size:14px;color:var(--tg-hint);line-height:1.5">
+    Ваш аккаунт не добавлен в список<br>разрешённых пользователей.<br><br>
+    Обратитесь к администратору.
+  </div>
+  <div id="authUsername" style="margin-top:16px;font-size:12px;color:var(--tg-hint);opacity:.6"></div>
+</div>
+
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
 // НАСТРОЙКА — замените на ваши значения
 // ═══════════════════════════════════════════════════════════════════════════
 const SHEET_ID   = "1hhO7JqfoTIuCM5HTbt-qnCh-A0tjxuofqJ50COdUfE8";   // из URL таблицы
 const SHEET_NAME = "Межмуниципалки_2026";                  // имя листа (вкладки)
-// Строка-заголовок (1-based). Данные начинаются со следующей строки.
 const HEADER_ROW = 2;
+
+// ── Авторизация ───────────────────────────────────────────────────────────
+const AUTH_ENABLED    = true;
+const ADMIN_USERNAME  = "ВАШ_TELEGRAM_USERNAME";   // ← вставьте свой @username без @
+const USERS_JSON_URL  = "https://raw.githubusercontent.com/oneclickrar-tech/road-app/main/users.json";
 // ═══════════════════════════════════════════════════════════════════════════
 
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
+
+// ── Авторизация ───────────────────────────────────────────────────────────
+async function checkAuth() {
+  if (!AUTH_ENABLED) return true;
+
+  const username = (tg?.initDataUnsafe?.user?.username || "").toLowerCase().trim();
+
+  // Администратор всегда имеет доступ
+  if (username && username === ADMIN_USERNAME.toLowerCase()) return true;
+
+  // Если нет username (открыто не через Telegram) — пропускаем в dev-режиме
+  if (!username) return true;
+
+  try {
+    const res = await fetch(USERS_JSON_URL + "?t=" + Date.now());
+    const data = await res.json();
+    const allowed = (data.users || []).map(u => u.toLowerCase().trim());
+    return allowed.includes(username);
+  } catch (e) {
+    console.error("Auth check failed:", e);
+    return false;
+  }
+}
+
+function showAuthBlock() {
+  const el = document.getElementById("authBlock");
+  el.style.display = "flex";
+  const username = tg?.initDataUnsafe?.user?.username;
+  if (username) {
+    document.getElementById("authUsername").textContent = "@" + username;
+  }
+}
 
 // ── Маппинг столбцов (0-based, C и E — скрытые) ───────────────────────────
 // A=0, B=1, C=2(скрыт), D=3, E=4(скрыт), F=5, G=6, H=7, I=8, J=9…
@@ -879,11 +931,16 @@ document.addEventListener("click", e => {
 });
 
 // ── Старт ─────────────────────────────────────────────────────────────────
-showSkeleton();
-loadData();
-
-// Авто-обновление каждые 5 минут
-setInterval(loadData, 5 * 60 * 1000);
+(async () => {
+  showSkeleton();
+  const allowed = await checkAuth();
+  if (!allowed) {
+    showAuthBlock();
+    return;
+  }
+  loadData();
+  setInterval(loadData, 5 * 60 * 1000);
+})();
 </script>
 </body>
 </html>
