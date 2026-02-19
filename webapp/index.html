@@ -773,7 +773,7 @@ function cardHTML(r, idx) {
       <div class="detail-grid">
         <div class="detail-item full">
           <div class="detail-label">Наименование объекта</div>
-          <div class="detail-value">${escHtml(title)}</div>
+          <div class="detail-value copyable" data-copy="${escAttr(title)}">${escHtml(title)}</div>
         </div>
         ${detailItem("Протяжённость", length)}
         ${detailItem("Сумма контракта", sumFmt)}
