@@ -824,8 +824,25 @@ function escAttr(s) {
 let toastTimer = null;
 function copyText(text) {
   if (!text || text === "—" || text === "не указано") return;
-  navigator.clipboard?.writeText(text).then(() => showToast(text));
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast(text))
+      .catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
   if (tg) tg.HapticFeedback?.notificationOccurred("success");
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;opacity:0;font-size:16px";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { document.execCommand("copy"); showToast(text); } catch(e) { showToast("Не удалось скопировать"); }
+  document.body.removeChild(ta);
 }
 function showToast(text) {
   const toast = document.getElementById("copyToast");
