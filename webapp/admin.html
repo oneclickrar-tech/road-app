@@ -14,37 +14,30 @@
       --tg-link:      var(--tg-theme-link-color, #2563eb);
       --tg-btn:       var(--tg-theme-button-color, #2563eb);
       --tg-btn-text:  var(--tg-theme-button-text-color, #ffffff);
-      --radius:       12px;
-      --shadow:       0 1px 3px rgba(0,0,0,.10), 0 1px 2px rgba(0,0,0,.06);
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,.10), 0 1px 2px rgba(0,0,0,.06);
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       background: var(--tg-secondary);
       color: var(--tg-text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       font-size: 14px;
       min-height: 100dvh;
-      padding-bottom: env(safe-area-inset-bottom, 16px);
+      padding-bottom: env(safe-area-inset-bottom, 24px);
     }
 
-    /* ── Шапка ─────────────────────────────────────────────────────────── */
     .header {
       background: var(--tg-btn);
       color: var(--tg-btn-text);
       padding: 14px 16px 12px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      position: sticky; top: 0; z-index: 100;
     }
     .header h1 { font-size: 15px; font-weight: 700; }
     .header p  { font-size: 12px; opacity: .82; margin-top: 2px; }
 
-    /* ── Контент ────────────────────────────────────────────────────────── */
-    .page { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+    .page { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
 
-    /* ── Карточка ───────────────────────────────────────────────────────── */
     .card {
       background: var(--tg-bg);
       border-radius: var(--radius);
@@ -52,168 +45,109 @@
       overflow: hidden;
     }
     .card-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--tg-hint);
-      text-transform: uppercase;
-      letter-spacing: .04em;
+      font-size: 11px; font-weight: 700;
+      color: var(--tg-hint); text-transform: uppercase; letter-spacing: .05em;
       padding: 14px 16px 0;
     }
 
-    /* ── Настройки токена ───────────────────────────────────────────────── */
-    .token-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      padding: 12px 16px;
-    }
+    /* Token */
+    .token-row { display: flex; gap: 8px; align-items: center; padding: 10px 16px; }
     .token-row input {
-      flex: 1;
-      border: 1.5px solid color-mix(in srgb, var(--tg-hint) 25%, transparent);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font-size: 13px;
-      background: var(--tg-secondary);
-      color: var(--tg-text);
-      font-family: monospace;
+      flex: 1; border: 1.5px solid color-mix(in srgb,var(--tg-hint) 25%,transparent);
+      border-radius: 8px; padding: 8px 12px; font-size: 13px;
+      background: var(--tg-secondary); color: var(--tg-text); font-family: monospace;
     }
     .token-row input:focus { outline: none; border-color: var(--tg-btn); }
-    .token-hint {
-      font-size: 11px;
-      color: var(--tg-hint);
-      padding: 0 16px 12px;
-      line-height: 1.5;
-    }
+    .token-hint { font-size: 11px; color: var(--tg-hint); padding: 0 16px 12px; line-height: 1.5; }
     .token-hint a { color: var(--tg-link); }
 
-    /* ── Кнопки ─────────────────────────────────────────────────────────── */
+    /* Add user */
+    .add-form { padding: 10px 16px 14px; display: flex; flex-direction: column; gap: 8px; }
+    .add-form input {
+      border: 1.5px solid color-mix(in srgb,var(--tg-hint) 25%,transparent);
+      border-radius: 8px; padding: 9px 12px; font-size: 14px;
+      background: var(--tg-secondary); color: var(--tg-text); width: 100%;
+    }
+    .add-form input:focus { outline: none; border-color: var(--tg-btn); }
+    .add-form input::placeholder { color: var(--tg-hint); }
+    .add-row { display: flex; gap: 8px; }
+    .add-row input { font-family: monospace; letter-spacing: .05em; }
+
+    /* Buttons */
     .btn {
-      border: none;
-      border-radius: 8px;
-      padding: 9px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity .15s;
-      white-space: nowrap;
+      border: none; border-radius: 8px; padding: 9px 14px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: opacity .15s; white-space: nowrap; flex-shrink: 0;
     }
-    .btn:active { opacity: .75; }
+    .btn:active { opacity: .7; }
     .btn-primary { background: var(--tg-btn); color: var(--tg-btn-text); }
+    .btn-ghost   { background: color-mix(in srgb,var(--tg-hint) 12%,transparent); color: var(--tg-text); }
     .btn-danger  { background: #fee2e2; color: #dc2626; }
-    .btn-sm      { padding: 6px 10px; font-size: 12px; }
+    .btn-success { background: #dcfce7; color: #16a34a; }
+    .btn-sm      { padding: 6px 10px; font-size: 12px; border-radius: 6px; }
 
-    /* ── Добавление пользователя ─────────────────────────────────────────── */
-    .add-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      padding: 12px 16px;
-    }
-    .add-row input {
-      flex: 1;
-      border: 1.5px solid color-mix(in srgb, var(--tg-hint) 25%, transparent);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font-size: 14px;
-      background: var(--tg-secondary);
-      color: var(--tg-text);
-    }
-    .add-row input:focus { outline: none; border-color: var(--tg-btn); }
-    .add-row input::placeholder { color: var(--tg-hint); }
-
-    /* ── Список пользователей ────────────────────────────────────────────── */
-    .user-list { padding: 0 0 8px; }
+    /* User list */
+    .user-list { padding-bottom: 6px; }
     .user-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 11px 16px;
-      border-top: 1px solid color-mix(in srgb, var(--tg-hint) 12%, transparent);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px;
+      border-top: 1px solid color-mix(in srgb,var(--tg-hint) 12%,transparent);
     }
     .user-item:first-child { border-top: none; }
-    .user-info { display: flex; align-items: center; gap: 10px; }
-    .user-avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: var(--tg-btn);
-      color: var(--tg-btn-text);
-      font-size: 13px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+    .user-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
     }
-    .user-name { font-size: 14px; font-weight: 600; }
-    .user-at   { font-size: 12px; color: var(--tg-hint); }
-
-    /* ── Пустой список ────────────────────────────────────────────────────── */
-    .empty {
-      text-align: center;
-      padding: 28px 16px;
-      color: var(--tg-hint);
-      font-size: 13px;
+    .avatar-active   { background: #dbeafe; color: #1d4ed8; }
+    .avatar-blocked  { background: #fee2e2; color: #dc2626; }
+    .user-label { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-code  { font-size: 11px; color: var(--tg-hint); font-family: monospace; letter-spacing: .05em; }
+    .user-blocked-badge {
+      font-size: 10px; font-weight: 700; color: #dc2626;
+      background: #fee2e2; border-radius: 4px; padding: 1px 5px; margin-left: 6px;
     }
+    .user-actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: 8px; }
 
-    /* ── Загрузка / спиннер ──────────────────────────────────────────────── */
-    .loading-text {
-      text-align: center;
-      padding: 20px;
-      color: var(--tg-hint);
-      font-size: 13px;
+    .code-display {
+      font-family: monospace; font-size: 15px; font-weight: 700;
+      letter-spacing: .1em; color: var(--tg-btn);
+      background: color-mix(in srgb,var(--tg-btn) 10%,transparent);
+      padding: 10px 16px; border-radius: 8px; margin: 0 16px 14px;
+      display: flex; align-items: center; justify-content: space-between;
     }
 
-    /* ── Тост ────────────────────────────────────────────────────────────── */
+    .empty { text-align: center; padding: 24px 16px; color: var(--tg-hint); font-size: 13px; }
+    .loading-text { text-align: center; padding: 20px; color: var(--tg-hint); font-size: 13px; }
+
     .toast {
-      position: fixed;
-      bottom: calc(env(safe-area-inset-bottom, 16px) + 16px);
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: #1e293b;
-      color: #fff;
-      padding: 10px 18px;
-      border-radius: 24px;
-      font-size: 13px;
-      font-weight: 500;
-      z-index: 9999;
-      transition: transform .25s ease, opacity .25s ease;
-      opacity: 0;
-      white-space: nowrap;
-      max-width: 90vw;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      position: fixed; bottom: calc(env(safe-area-inset-bottom,16px) + 12px);
+      left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #1e293b; color: #fff; padding: 10px 18px;
+      border-radius: 24px; font-size: 13px; font-weight: 500;
+      z-index: 9999; transition: transform .25s, opacity .25s;
+      opacity: 0; white-space: nowrap; max-width: 90vw;
     }
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     .toast.error { background: #dc2626; }
 
-    /* ── Экран блокировки ─────────────────────────────────────────────────── */
     #accessDenied {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: var(--tg-secondary);
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 32px;
-      text-align: center;
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      background: var(--tg-secondary); flex-direction: column;
+      align-items: center; justify-content: center; padding: 32px; text-align: center;
     }
-    #accessDenied .icon { margin-bottom: 20px; color: var(--tg-hint); }
-    #accessDenied h2 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-    #accessDenied p  { font-size: 14px; color: var(--tg-hint); line-height: 1.5; }
+    #accessDenied h2 { font-size: 18px; font-weight: 700; margin: 16px 0 8px; }
+    #accessDenied p  { font-size: 14px; color: var(--tg-hint); }
   </style>
 </head>
 <body>
 
-<!-- Шапка -->
 <div class="header">
   <h1>⚙️ Управление доступом</h1>
   <p id="adminName">Загрузка…</p>
 </div>
 
-<!-- Основной контент -->
 <div class="page" id="mainPage" style="display:none">
 
   <!-- GitHub Token -->
@@ -224,29 +158,29 @@
       <button class="btn btn-primary" onclick="saveToken()">Сохранить</button>
     </div>
     <div class="token-hint">
-      Нужен для записи списка пользователей.<br>
-      Создайте на
-      <a href="https://github.com/settings/tokens/new?description=road-app-admin&scopes=repo" target="_blank">
-        github.com/settings/tokens
-      </a>
-      (scope: <strong>repo</strong> или <strong>contents:write</strong>).
-      Токен хранится только в этом устройстве.
+      Создайте на <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a>
+      (scope: <strong>repo</strong>). Токен хранится только на этом устройстве.
     </div>
   </div>
 
   <!-- Добавить пользователя -->
   <div class="card">
     <div class="card-title">Добавить пользователя</div>
-    <div class="add-row">
-      <input type="text" id="newUser" placeholder="@username (без @)"
-             autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />
-      <button class="btn btn-primary" onclick="addUser()">Добавить</button>
+    <div class="add-form">
+      <input type="text" id="newLabel" placeholder="Имя / ФИО пользователя"
+             autocorrect="off" spellcheck="false" />
+      <div class="add-row">
+        <input type="text" id="newCode" placeholder="Код (авто)" readonly
+               autocomplete="off" autocorrect="off" autocapitalize="none" />
+        <button class="btn btn-ghost" onclick="genCode()" title="Сгенерировать новый код">🔄</button>
+        <button class="btn btn-primary" onclick="addUser()">Добавить</button>
+      </div>
     </div>
   </div>
 
-  <!-- Список разрешённых пользователей -->
+  <!-- Список пользователей -->
   <div class="card">
-    <div class="card-title">Разрешённые пользователи</div>
+    <div class="card-title">Пользователи</div>
     <div class="user-list" id="userList">
       <div class="loading-text">Загрузка…</div>
     </div>
@@ -256,26 +190,21 @@
 
 <!-- Экран блокировки -->
 <div id="accessDenied">
-  <svg class="icon" width="64" height="64" viewBox="0 0 24 24" fill="none"
-       stroke="currentColor" stroke-width="1.5">
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--tg-hint)" stroke-width="1.5">
+    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
   </svg>
   <h2>Нет доступа</h2>
-  <p>Эта страница доступна<br>только администратору.</p>
+  <p>Эта страница только для администратора.</p>
 </div>
 
-<!-- Тост -->
 <div class="toast" id="toast"></div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
-// НАСТРОЙКА — заполните свои значения
-// ═══════════════════════════════════════════════════════════════════════════
-const ADMIN_USERNAME = "Eveningwint";   // без @
+const ADMIN_USERNAME = "Eveningwint";          // без @
 const GITHUB_OWNER   = "oneclickrar-tech";
 const GITHUB_REPO    = "road-app";
-const USERS_FILE     = "users.json";              // путь в репозитории
+const USERS_FILE     = "users.json";
 // ═══════════════════════════════════════════════════════════════════════════
 
 const tg = window.Telegram?.WebApp;
@@ -301,17 +230,15 @@ let toastTimer   = null;
 
   document.getElementById("mainPage").style.display = "flex";
 
-  // Восстановить сохранённый токен
   const saved = localStorage.getItem("gh_admin_token");
   if (saved) document.getElementById("tokenInput").value = saved;
 
+  genCode();
   await loadUsers();
 })();
 
-// ── Токен ─────────────────────────────────────────────────────────────────
-function getToken() {
-  return document.getElementById("tokenInput").value.trim();
-}
+// ── GitHub token ──────────────────────────────────────────────────────────
+function getToken() { return document.getElementById("tokenInput").value.trim(); }
 function saveToken() {
   const t = getToken();
   if (!t) { showToast("Введите токен", true); return; }
@@ -319,7 +246,15 @@ function saveToken() {
   showToast("Токен сохранён");
 }
 
-// ── Загрузка пользователей из GitHub ────────────────────────────────────
+// ── Генерация кода ────────────────────────────────────────────────────────
+function genCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  document.getElementById("newCode").value = code;
+}
+
+// ── Загрузка из GitHub ────────────────────────────────────────────────────
 async function loadUsers() {
   document.getElementById("userList").innerHTML = '<div class="loading-text">Загрузка…</div>';
   try {
@@ -337,7 +272,7 @@ async function loadUsers() {
     renderUsers();
   } catch (e) {
     document.getElementById("userList").innerHTML =
-      `<div class="loading-text">Ошибка загрузки: ${e.message}</div>`;
+      `<div class="loading-text">Ошибка: ${e.message}<br><small>Проверьте GitHub Token</small></div>`;
   }
 }
 
@@ -345,55 +280,106 @@ async function loadUsers() {
 function renderUsers() {
   const list = document.getElementById("userList");
   if (!currentUsers.length) {
-    list.innerHTML = '<div class="empty">Нет разрешённых пользователей</div>';
+    list.innerHTML = '<div class="empty">Нет пользователей. Добавьте первого выше.</div>';
     return;
   }
-  list.innerHTML = currentUsers.map(u => `
+  list.innerHTML = currentUsers.map((u, i) => {
+    const initial = (u.label || u.code)[0].toUpperCase();
+    const avatarClass = u.active ? "avatar-active" : "avatar-blocked";
+    const blockedBadge = u.active ? "" : '<span class="user-blocked-badge">БЛОК</span>';
+    return `
     <div class="user-item">
-      <div class="user-info">
-        <div class="user-avatar">${u[0].toUpperCase()}</div>
-        <div>
-          <div class="user-name">${escHtml(u)}</div>
-          <div class="user-at">@${escHtml(u)}</div>
+      <div class="user-left">
+        <div class="avatar ${avatarClass}">${initial}</div>
+        <div style="min-width:0">
+          <div class="user-label">${escHtml(u.label || "—")}${blockedBadge}</div>
+          <div class="user-code" data-copy="${escAttr(u.code)}" style="cursor:pointer" title="Нажмите чтобы скопировать">
+            🔑 ${escHtml(u.code)}
+          </div>
         </div>
       </div>
-      <button class="btn btn-danger btn-sm" onclick="removeUser('${escAttr(u)}')">Удалить</button>
-    </div>`).join("");
+      <div class="user-actions">
+        <button class="btn btn-sm ${u.active ? "btn-danger" : "btn-success"}"
+          onclick="toggleUser(${i})">
+          ${u.active ? "Блок" : "Разблок"}
+        </button>
+        <button class="btn btn-sm btn-danger" onclick="removeUser(${i})">✕</button>
+      </div>
+    </div>`;
+  }).join("");
+
+  // Копирование кода по клику
+  list.querySelectorAll("[data-copy]").forEach(el => {
+    el.addEventListener("click", () => {
+      const text = el.dataset.copy;
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast(`Скопирован: ${text}`));
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.cssText = "position:fixed;top:-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        showToast(`Скопирован: ${text}`);
+      }
+    });
+  });
 }
 
 // ── Добавить пользователя ─────────────────────────────────────────────────
 async function addUser() {
-  const input = document.getElementById("newUser");
-  const name  = input.value.trim().replace(/^@/, "").toLowerCase();
-  if (!name) { showToast("Введите имя пользователя", true); return; }
-  if (currentUsers.map(u => u.toLowerCase()).includes(name)) {
-    showToast(`${name} уже в списке`, true); return;
+  const label = document.getElementById("newLabel").value.trim();
+  const code  = document.getElementById("newCode").value.trim();
+  if (!label) { showToast("Введите имя пользователя", true); return; }
+  if (!code)  { showToast("Сгенерируйте код", true); return; }
+  if (currentUsers.find(u => u.code === code)) {
+    showToast("Такой код уже есть, сгенерируйте новый", true); return;
   }
-  currentUsers.push(name);
-  const ok = await saveUsers(`Добавлен пользователь: ${name}`);
-  if (ok) { input.value = ""; renderUsers(); showToast(`✓ Добавлен @${name}`); }
-  else     { currentUsers.pop(); }
+
+  currentUsers.push({ code, label, active: true });
+  const ok = await saveUsers(`Добавлен пользователь: ${label}`);
+  if (ok) {
+    document.getElementById("newLabel").value = "";
+    genCode();
+    renderUsers();
+    showToast(`✓ Добавлен: ${label} (код: ${code})`);
+  } else {
+    currentUsers.pop();
+  }
+}
+
+// ── Блок / разблок ────────────────────────────────────────────────────────
+async function toggleUser(i) {
+  const u = currentUsers[i];
+  const prev = u.active;
+  u.active = !u.active;
+  const ok = await saveUsers(`${u.active ? "Разблокирован" : "Заблокирован"}: ${u.label}`);
+  if (ok) {
+    renderUsers();
+    showToast(u.active ? `Разблокирован: ${u.label}` : `Заблокирован: ${u.label}`);
+  } else {
+    u.active = prev;
+  }
 }
 
 // ── Удалить пользователя ──────────────────────────────────────────────────
-async function removeUser(name) {
-  const idx = currentUsers.indexOf(name);
-  if (idx === -1) return;
-  currentUsers.splice(idx, 1);
-  const ok = await saveUsers(`Удалён пользователь: ${name}`);
-  if (ok) { renderUsers(); showToast(`Удалён @${name}`); }
-  else     { currentUsers.splice(idx, 0, name); }
+async function removeUser(i) {
+  const u = currentUsers[i];
+  const removed = currentUsers.splice(i, 1)[0];
+  const ok = await saveUsers(`Удалён пользователь: ${u.label}`);
+  if (ok) { renderUsers(); showToast(`Удалён: ${u.label}`); }
+  else    { currentUsers.splice(i, 0, removed); }
 }
 
-// ── Сохранить users.json в GitHub ────────────────────────────────────────
-async function saveUsers(commitMsg) {
+// ── Сохранить в GitHub ────────────────────────────────────────────────────
+async function saveUsers(msg) {
   const token = getToken();
-  if (!token) {
-    showToast("Введите и сохраните GitHub Token", true);
-    return false;
-  }
-  const newContent = JSON.stringify({ users: currentUsers }, null, 2) + "\n";
-  const encoded    = btoa(unescape(encodeURIComponent(newContent)));
+  if (!token) { showToast("Сохраните GitHub Token выше", true); return false; }
+
+  const body    = JSON.stringify({ users: currentUsers }, null, 2) + "\n";
+  const encoded = btoa(unescape(encodeURIComponent(body)));
 
   try {
     const res = await fetch(API_BASE, {
@@ -403,36 +389,28 @@ async function saveUsers(commitMsg) {
         "Authorization": `Bearer ${token}`,
         "Content-Type":  "application/json",
       },
-      body: JSON.stringify({
-        message: commitMsg,
-        content: encoded,
-        sha:     currentSha,
-      }),
+      body: JSON.stringify({ message: msg, content: encoded, sha: currentSha }),
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.message || res.status);
-    }
+    if (!res.ok) { const e = await res.json(); throw new Error(e.message || res.status); }
     const data = await res.json();
     currentSha = data.content.sha;
     if (tg) tg.HapticFeedback?.notificationOccurred("success");
     return true;
   } catch (e) {
-    showToast(`Ошибка: ${e.message}`, true);
+    showToast(`Ошибка сохранения: ${e.message}`, true);
     if (tg) tg.HapticFeedback?.notificationOccurred("error");
     return false;
   }
 }
 
 // ── Тост ──────────────────────────────────────────────────────────────────
-function showToast(msg, isError = false) {
+function showToast(msg, err = false) {
   const el = document.getElementById("toast");
   el.textContent = msg;
-  el.className   = "toast show" + (isError ? " error" : "");
+  el.className = "toast show" + (err ? " error" : "");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2400);
 }
-
 function escHtml(s) {
   return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
