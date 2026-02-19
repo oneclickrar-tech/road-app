@@ -165,12 +165,8 @@
     .filter-row {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      overflow-x: auto;
-      scrollbar-width: none;
+      padding: 5px 0 5px 12px;
     }
-    .filter-row::-webkit-scrollbar { display: none; }
     .filter-label {
       font-size: 11px;
       font-weight: 700;
@@ -179,7 +175,18 @@
       letter-spacing: .5px;
       white-space: nowrap;
       flex-shrink: 0;
+      width: 68px;
+      min-width: 68px;
     }
+    .filter-chips-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 2px 12px 2px 0;
+      flex: 1;
+    }
+    .filter-chips-scroll::-webkit-scrollbar { display: none; }
     .filter-chip {
       display: inline-flex;
       align-items: center;
@@ -459,15 +466,15 @@
 <div class="filters-body" id="filtersBody">
   <div class="filter-row">
     <span class="filter-label">ПТО</span>
-    <div id="filterPto" style="display:contents"></div>
+    <div class="filter-chips-scroll" id="filterPto"></div>
   </div>
   <div class="filter-row">
     <span class="filter-label">Камерал</span>
-    <div id="filterKameral" style="display:contents"></div>
+    <div class="filter-chips-scroll" id="filterKameral"></div>
   </div>
   <div class="filter-row">
     <span class="filter-label">Дата</span>
-    <div id="filterDate" style="display:contents"></div>
+    <div class="filter-chips-scroll" id="filterDate"></div>
   </div>
 </div>
 <div class="status-bar" id="statusBar">Загрузка…</div>
@@ -507,8 +514,8 @@ const COL = {
 let allRows = [];
 let lastSync = null;
 
-// Активные фильтры
-const activeFilters = { pto: "Все", kameral: "Все", date: "Все" };
+// Активные фильтры — массивы для множественного выбора (пустой = "Все")
+const activeFilters = { pto: [], kameral: [], date: [] };
 
 function toggleFilters() {
   const body    = document.getElementById("filtersBody");
@@ -520,9 +527,9 @@ function toggleFilters() {
 
 function resetFilters(e) {
   e.stopPropagation();
-  activeFilters.pto = "Все";
-  activeFilters.kameral = "Все";
-  activeFilters.date = "Все";
+  activeFilters.pto     = [];
+  activeFilters.kameral = [];
+  activeFilters.date    = [];
   buildFilters();
   applyFilters();
   updateFilterBadge();
@@ -530,7 +537,7 @@ function resetFilters(e) {
 }
 
 function updateFilterBadge() {
-  const count = ["pto","kameral","date"].filter(k => activeFilters[k] !== "Все").length;
+  const count = ["pto","kameral","date"].reduce((s,k) => s + activeFilters[k].length, 0);
   const badge = document.getElementById("filterBadge");
   const reset = document.getElementById("filterReset");
   if (count > 0) {
@@ -561,18 +568,34 @@ function buildFilters() {
 
 function renderChips(containerId, values, filterKey) {
   const el = document.getElementById(containerId);
-  el.innerHTML = values.map(v => `
-    <button class="filter-chip ${activeFilters[filterKey] === v ? "active" : ""}"
-            onclick="setFilter('${filterKey}', '${v.replace(/'/g, "\\'")}', this)">
-      ${escHtml(v)}
-    </button>`).join("");
+  const selected = activeFilters[filterKey];
+  el.innerHTML = values.map(v => {
+    const idx = selected.indexOf(v);
+    const isActive = idx >= 0;
+    const opacity = isActive ? Math.max(1 - idx * 0.15, 0.4) : null;
+    const style = isActive
+      ? `style="background:var(--tg-btn);color:var(--tg-btn-text);border-color:var(--tg-btn);opacity:${opacity}"`
+      : ``;
+    return `<button class="filter-chip ${isActive ? "active" : ""}" ${style}
+              data-key="${filterKey}" data-val="${escAttr(v)}">
+              ${escHtml(v)}
+            </button>`;
+  }).join("");
 }
 
-function setFilter(key, value, btn) {
-  activeFilters[key] = value;
-  btn.closest(".filter-row").querySelectorAll(".filter-chip")
-    .forEach(c => c.classList.remove("active"));
-  btn.classList.add("active");
+function setFilter(key, value) {
+  const arr = activeFilters[key];
+  const idx = arr.indexOf(value);
+  if (idx >= 0) {
+    arr.splice(idx, 1);
+  } else {
+    arr.push(value);
+  }
+  renderChips("filter" + key.charAt(0).toUpperCase() + key.slice(1),
+    [...new Set(["Все", ...allRows.map(r => {
+      if (key === "date") return parseContract(r[COL.contract]).date;
+      return String(r[COL[key]] || "");
+    }).filter(Boolean)])], key);
   applyFilters();
   updateFilterBadge();
   if (tg) tg.HapticFeedback?.selectionChanged();
@@ -581,9 +604,9 @@ function setFilter(key, value, btn) {
 function applyFilters() {
   const q = document.getElementById("search").value.trim().toLowerCase();
   let rows = allRows;
-  if (activeFilters.pto     !== "Все") rows = rows.filter(r => String(r[COL.pto]     || "") === activeFilters.pto);
-  if (activeFilters.kameral !== "Все") rows = rows.filter(r => String(r[COL.kameral] || "") === activeFilters.kameral);
-  if (activeFilters.date    !== "Все") rows = rows.filter(r => parseContract(r[COL.contract]).date === activeFilters.date);
+  if (activeFilters.pto.length)     rows = rows.filter(r => activeFilters.pto.includes(String(r[COL.pto] || "")));
+  if (activeFilters.kameral.length) rows = rows.filter(r => activeFilters.kameral.includes(String(r[COL.kameral] || "")));
+  if (activeFilters.date.length)    rows = rows.filter(r => activeFilters.date.includes(parseContract(r[COL.contract]).date));
   if (q) rows = rows.filter(r =>
     String(r[COL.title]    || "").toLowerCase().includes(q) ||
     String(r[COL.contract] || "").toLowerCase().includes(q) ||
@@ -813,10 +836,14 @@ function showToast(text) {
   toastTimer = setTimeout(() => toast.classList.remove("show"), 1800);
 }
 
-// ── Делегированный обработчик копирования ─────────────────────────────────
+// ── Делегированные обработчики ────────────────────────────────────────────
 document.addEventListener("click", e => {
-  const el = e.target.closest("[data-copy]");
-  if (el) copyText(el.dataset.copy);
+  // Копирование
+  const copyEl = e.target.closest("[data-copy]");
+  if (copyEl) { copyText(copyEl.dataset.copy); return; }
+  // Фильтр-чипы
+  const chip = e.target.closest(".filter-chip[data-key]");
+  if (chip) setFilter(chip.dataset.key, chip.dataset.val);
 });
 
 // ── Старт ─────────────────────────────────────────────────────────────────
