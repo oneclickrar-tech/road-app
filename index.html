@@ -104,6 +104,51 @@
     .sync-btn.loading svg { animation: spin .7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Фильтры ─────────────────────────────────────────────────────────── */
+    .filters {
+      background: var(--tg-bg);
+      border-bottom: 1px solid color-mix(in srgb, var(--tg-hint) 15%, transparent);
+    }
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .filter-row::-webkit-scrollbar { display: none; }
+    .filter-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--tg-hint);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1.5px solid color-mix(in srgb, var(--tg-hint) 25%, transparent);
+      background: transparent;
+      color: var(--tg-text);
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: all .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .filter-chip.active {
+      background: var(--tg-btn);
+      color: var(--tg-btn-text);
+      border-color: var(--tg-btn);
+    }
+
     /* ── Статус ──────────────────────────────────────────────────────────── */
     .status-bar {
       padding: 6px 16px;
@@ -343,6 +388,20 @@
   </button>
 </div>
 
+<div class="filters" id="filters" style="display:none">
+  <div class="filter-row">
+    <span class="filter-label">ПТО</span>
+    <div id="filterPto" style="display:contents"></div>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Камерал</span>
+    <div id="filterKameral" style="display:contents"></div>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Дата</span>
+    <div id="filterDate" style="display:contents"></div>
+  </div>
+</div>
 <div class="status-bar" id="statusBar">Загрузка…</div>
 <div class="list" id="list"></div>
 <div class="copy-toast" id="copyToast">Скопировано</div>
@@ -380,6 +439,56 @@ const COL = {
 let allRows = [];
 let lastSync = null;
 
+// Активные фильтры
+const activeFilters = { pto: "Все", kameral: "Все", date: "Все" };
+
+function buildFilters() {
+  const unique = key => ["Все", ...new Set(allRows.map(r => String(r[COL[key]] || "")).filter(Boolean))];
+
+  renderChips("filterPto",     unique("pto"),     "pto");
+  renderChips("filterKameral", unique("kameral"), "kameral");
+
+  const dates = ["Все", ...new Set(allRows.map(r => {
+    const { date } = parseContract(r[COL.contract]);
+    return date;
+  }).filter(Boolean))];
+  renderChips("filterDate", dates, "date");
+
+  document.getElementById("filters").style.display = "block";
+}
+
+function renderChips(containerId, values, filterKey) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = values.map(v => `
+    <button class="filter-chip ${activeFilters[filterKey] === v ? "active" : ""}"
+            onclick="setFilter('${filterKey}', '${v.replace(/'/g, "\\'")}', this)">
+      ${escHtml(v)}
+    </button>`).join("");
+}
+
+function setFilter(key, value, btn) {
+  activeFilters[key] = value;
+  btn.closest(".filter-row").querySelectorAll(".filter-chip")
+    .forEach(c => c.classList.remove("active"));
+  btn.classList.add("active");
+  applyFilters();
+  if (tg) tg.HapticFeedback?.selectionChanged();
+}
+
+function applyFilters() {
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  let rows = allRows;
+  if (activeFilters.pto     !== "Все") rows = rows.filter(r => String(r[COL.pto]     || "") === activeFilters.pto);
+  if (activeFilters.kameral !== "Все") rows = rows.filter(r => String(r[COL.kameral] || "") === activeFilters.kameral);
+  if (activeFilters.date    !== "Все") rows = rows.filter(r => parseContract(r[COL.contract]).date === activeFilters.date);
+  if (q) rows = rows.filter(r =>
+    String(r[COL.title]    || "").toLowerCase().includes(q) ||
+    String(r[COL.contract] || "").toLowerCase().includes(q) ||
+    String(r[COL.num]      || "").toLowerCase().includes(q)
+  );
+  render(rows);
+}
+
 // ── Загрузка данных из Google Sheets ──────────────────────────────────────
 async function loadData() {
   const btn  = document.getElementById("syncBtn");
@@ -406,7 +515,8 @@ async function loadData() {
 
     lastSync = new Date();
     setStatus(`Объектов: ${allRows.length} · Обновлено: ${fmtTime(lastSync)}`);
-    render(allRows);
+    buildFilters();
+    applyFilters();
   } catch (e) {
     setStatus("Ошибка загрузки. Проверьте доступ к таблице.");
     if (!allRows.length) showError(e);
@@ -418,15 +528,7 @@ async function loadData() {
 }
 
 // ── Поиск ─────────────────────────────────────────────────────────────────
-document.getElementById("search").addEventListener("input", function () {
-  const q = this.value.trim().toLowerCase();
-  if (!q) { render(allRows); return; }
-  render(allRows.filter(r =>
-    String(r[COL.title]).toLowerCase().includes(q) ||
-    String(r[COL.contract]).toLowerCase().includes(q) ||
-    String(r[COL.num]).toLowerCase().includes(q)
-  ));
-});
+document.getElementById("search").addEventListener("input", applyFilters);
 
 // ── Рендер списка ─────────────────────────────────────────────────────────
 function render(rows) {
