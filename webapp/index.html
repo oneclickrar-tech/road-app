@@ -242,6 +242,30 @@
     }
     .detail-value.empty { color: var(--tg-hint); font-style: italic; font-weight: 400; }
 
+    /* ── Копирование ─────────────────────────────────────────────────────── */
+    .copyable { cursor: pointer; position: relative; }
+    .copyable:active { opacity: .6; }
+    .copy-toast {
+      position: fixed;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: rgba(0,0,0,.75);
+      color: #fff;
+      font-size: 13px;
+      padding: 7px 16px;
+      border-radius: 20px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .2s, transform .2s;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     /* ── Статусные блоки подписантов ─────────────────────────────────────── */
     .signers {
       margin-top: 10px;
@@ -323,6 +347,7 @@
 
 <div class="status-bar" id="statusBar">Загрузка…</div>
 <div class="list" id="list"></div>
+<div class="copy-toast" id="copyToast">Скопировано</div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
@@ -473,7 +498,8 @@ function cardHTML(r, idx) {
   ].map(([label, val]) => `
     <div class="signer-row">
       <span class="signer-label">${label}</span>
-      <span class="signer-value ${val ? "" : "empty"}">${val || "—"}</span>
+      <span class="signer-value ${val ? "copyable" : "empty"}"
+            ${val ? `onclick="copyText('${val.replace(/'/g, "\\'")}')"` : ""}>${val || "—"}</span>
     </div>`).join("");
 
   return `
@@ -517,10 +543,11 @@ function cardHTML(r, idx) {
 }
 
 function detailItem(label, value) {
+  const clickable = value ? `onclick="copyText('${value.replace(/'/g, "\\'")}')"` : "";
   return `
     <div class="detail-item">
       <div class="detail-label">${label}</div>
-      <div class="detail-value ${value ? "" : "empty"}">${escHtml(value) || "не указано"}</div>
+      <div class="detail-value ${value ? "copyable" : "empty"}" ${clickable}>${escHtml(value) || "не указано"}</div>
     </div>`;
 }
 
@@ -554,6 +581,22 @@ function escHtml(s) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+// ── Копирование в буфер ───────────────────────────────────────────────────
+let toastTimer = null;
+function copyText(text) {
+  if (!text || text === "—" || text === "не указано") return;
+  navigator.clipboard?.writeText(text).then(() => showToast(text));
+  if (tg) tg.HapticFeedback?.notificationOccurred("success");
+}
+function showToast(text) {
+  const toast = document.getElementById("copyToast");
+  const short = text.length > 30 ? text.slice(0, 30) + "…" : text;
+  toast.textContent = `Скопировано: ${short}`;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove("show"), 1800);
 }
 
 // ── Старт ─────────────────────────────────────────────────────────────────
