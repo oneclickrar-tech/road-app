@@ -191,11 +191,12 @@
     /* цвета Исполнителей (ПТО) */
     .pto-Дима   { background: #e0e7ff; color: #3730a3; }
     .pto-Тимур  { background: #fce7f3; color: #9d174d; }
-    .pto-Натали { background: #ffedd5; color: #9a3412; }
+    .pto-Наташа { background: #ffedd5; color: #9a3412; }
     .pto-Артем  { background: #d1fae5; color: #065f46; }
     .pto-Ярослав{ background: #fee2e2; color: #991b1b; }
     .pto-Марина { background: #ede9fe; color: #5b21b6; }
-    .pto-Лина   { background: #f0fdf4; color: #166534; }
+    .pto-Лёша   { background: #f0fdf4; color: #166534; }
+    .pto-Данил  { background: #fef3c7; color: #92400e; }
 
     .chevron {
       color: var(--tg-hint);
@@ -316,7 +317,7 @@
       <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
       <path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
     </svg>
-    Sync
+    Обновить
   </button>
 </div>
 
@@ -336,21 +337,21 @@ const HEADER_ROW = 2;
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
-// ── Маппинг столбцов (0-based индексы после парсинга) ──────────────────────
-// Порядок: A=0, B=1, C=2 … — подгоните под вашу таблицу
+// ── Маппинг столбцов (0-based, включая скрытые колонки C и E) ─────────────
+// A=0, B=1, C=2(скрыт), D=3, E=4(скрыт), F=5, G=6, H=7, I=8, J=9…
 const COL = {
-  num:        0,   // №
-  title:      1,   // Наименование объекта
-  length:     2,   // Протяжённость, км
-  contract:   3,   // № Контракта
-  pto:        4,   // ПТО (исполнитель)
-  kameral:    5,   // Камерал
-  ourOrder:   6,   // Наш приказ
-  sigForeman: 7,   // Подписант Прораб
-  sigGeo:     8,   // Подписант ГЕО
-  sigMain:    9,   // Подписант Глав. СК
-  sigRks:     10,  // Подписант РКС СК
-  rksOrder:   11,  // РКС приказ
+  num:        0,   // A — №
+  title:      1,   // B — Наименование объекта
+  length:     5,   // F — Протяжённость, км
+  contract:   6,   // G — № Контракта
+  pto:        7,   // H — ПТО (исполнитель)
+  kameral:    8,   // I — Камерал
+  ourOrder:   9,   // J — Наш приказ
+  sigForeman: 10,  // K — Подписант Прораб
+  sigGeo:     11,  // L — Подписант ГЕО
+  sigMain:    12,  // M — Подписант Глав. Инженер
+  sigRks:     13,  // N — Подписант РКС СК
+  rksOrder:   14,  // O — РКС приказ
 };
 
 let allRows = [];
@@ -376,10 +377,9 @@ async function loadData() {
     const cols = json.table.cols;
     const rows = json.table.rows;
 
-    // Пропускаем строки до HEADER_ROW (они уже не в индексах — gviz даёт всё)
-    // Первые HEADER_ROW-1 строки считаем шапкой и пропускаем
+    // slice(HEADER_ROW) — пропускаем строку 1 (заголовок таблицы) и строку 2 (шапка колонок)
     allRows = rows
-      .slice(HEADER_ROW - 1)
+      .slice(HEADER_ROW)
       .map(r => (r.c || []).map(cell => cell?.v ?? cell?.f ?? ""))
       .filter(r => r[COL.title]);   // только строки с названием объекта
 
@@ -458,10 +458,10 @@ function cardHTML(r, idx) {
     : "";
 
   const signers = [
-    ["Прораб",    sigFor],
-    ["ГЕО",       sigGeo],
-    ["Глав. СК",  sigMain],
-    ["РКС СК",    sigRks],
+    ["Прораб",         sigFor],
+    ["ГЕО",            sigGeo],
+    ["Глав. Инженер",  sigMain],
+    ["РКС СК",         sigRks],
   ].map(([label, val]) => `
     <div class="signer-row">
       <span class="signer-label">${label}</span>
@@ -556,5 +556,3 @@ setInterval(loadData, 5 * 60 * 1000);
 </script>
 </body>
 </html>
-
-
