@@ -14,7 +14,7 @@ WEBAPP_URL     = os.getenv("WEBAPP_URL", "https://oneclickrar-tech.github.io/roa
 PROXY          = os.getenv("PROXY", None)
 
 # Ваш Telegram username без @ (тот же, что в index.html и admin.html)
-ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "ВАШ_TELEGRAM_USERNAME")
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "Eveningwint")  # без @
 # ──────────────────────────────────────────────────────────────────────────────
 
 ADMIN_URL = WEBAPP_URL.rstrip("/") + "/webapp/admin.html"
