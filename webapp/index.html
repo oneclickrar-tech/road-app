@@ -337,50 +337,22 @@ const HEADER_ROW = 2;
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
-// ── Названия заголовков (подстрока — ищем частичное совпадение) ────────────
-const COL_NAMES = {
-  num:        "№",
-  title:      "Наименование объекта",
-  length:     "Протяжен",
-  contract:   "Контракта",
-  pto:        "ПТО",
-  kameral:    "Камерал",
-  ourOrder:   "Наш приказ",
-  sigForeman: "Прораб",
-  sigGeo:     "ГЕО",
-  sigMain:    "Глав",
-  sigRks:     "РКС СК",
-  rksOrder:   "РКС приказ",
+// ── Маппинг столбцов (0-based, C и E — скрытые) ───────────────────────────
+// A=0, B=1, C=2(скрыт), D=3, E=4(скрыт), F=5, G=6, H=7, I=8, J=9…
+const COL = {
+  num:        0,   // A — №
+  title:      1,   // B — Наименование объекта
+  length:     3,   // D — Протяжённость, км
+  contract:   5,   // F — № Контракта
+  pto:        6,   // G — ПТО (исполнитель)
+  kameral:    7,   // H — Камерал
+  ourOrder:   8,   // I — Наш приказ
+  sigForeman: 9,   // J — Подписант Прораб
+  sigGeo:     10,  // K — Подписант ГЕО
+  sigMain:    11,  // L — Подписант Глав. Инженер
+  sigRks:     12,  // M — Подписант РКС СК
+  rksOrder:   13,  // N — РКС приказ
 };
-
-// Заполняется автоматически после чтения строки заголовков
-let COL = {};
-
-// Строит маппинг имя→индекс по строке заголовков таблицы
-function buildColMap(rows) {
-  const headerRow = rows[HEADER_ROW - 1];
-  const headers   = (headerRow?.c || []).map(
-    cell => (cell?.v ?? cell?.f ?? "").toString().trim()
-  );
-
-  const labelToIdx = {};
-  headers.forEach((label, idx) => { if (label) labelToIdx[label] = idx; });
-
-  const result = {};
-  for (const [key, search] of Object.entries(COL_NAMES)) {
-    // Сначала точное совпадение
-    if (labelToIdx[search] !== undefined) {
-      result[key] = labelToIdx[search];
-      continue;
-    }
-    // Затем частичное (без учёта регистра)
-    const found = Object.entries(labelToIdx).find(([label]) =>
-      label.toLowerCase().includes(search.toLowerCase())
-    );
-    result[key] = found ? found[1] : -1;
-  }
-  return result;
-}
 
 let allRows = [];
 let lastSync = null;
@@ -404,14 +376,11 @@ async function loadData() {
 
     const rows = json.table.rows;
 
-    // Строим маппинг по заголовкам строки HEADER_ROW
-    COL = buildColMap(rows);
-
-    // Пропускаем строку 1 (название программы) и строку 2 (заголовки)
+    // slice(HEADER_ROW) — пропускаем строку 1 (заголовок таблицы) и строку 2 (шапка колонок)
     allRows = rows
       .slice(HEADER_ROW)
       .map(r => (r.c || []).map(cell => cell?.v ?? cell?.f ?? ""))
-      .filter(r => COL.title >= 0 && r[COL.title]);
+      .filter(r => r[COL.title]);
 
     lastSync = new Date();
     setStatus(`Объектов: ${allRows.length} · Обновлено: ${fmtTime(lastSync)}`);
