@@ -434,12 +434,21 @@ function render(rows) {
   });
 }
 
+// ── Парсинг контракта: "37/26-СМР от 16.02.26" → { num, date } ────────────
+function parseContract(str) {
+  if (!str) return { num: "", date: "" };
+  const match = String(str).match(/^(.+?)\s+от\s+(.+)$/i);
+  if (match) return { num: match[1].trim(), date: match[2].trim() };
+  return { num: String(str), date: "" };
+}
+
 // ── HTML карточки ─────────────────────────────────────────────────────────
 function cardHTML(r, idx) {
   const num      = r[COL.num]      || (idx + 1);
   const title    = r[COL.title]    || "—";
   const length   = r[COL.length]   ? `${r[COL.length]} км` : "";
-  const contract = r[COL.contract] || "";
+  const { num: contractNum, date: contractDate } = parseContract(r[COL.contract]);
+  const contract = contractNum;
   const pto      = r[COL.pto]      || "";
   const kameral  = r[COL.kameral]  || "";
   const ourOrder = r[COL.ourOrder] || "";
@@ -492,7 +501,8 @@ function cardHTML(r, idx) {
           <div class="detail-value">${escHtml(title)}</div>
         </div>
         ${detailItem("Протяжённость", length)}
-        ${detailItem("№ Контракта", contract)}
+        ${detailItem("№ Контракта", contractNum)}
+        ${detailItem("Дата заключения", contractDate)}
         ${detailItem("Камерал", kameral)}
         ${detailItem("Наш приказ", ourOrder)}
         ${detailItem("РКС приказ", rksOrder)}
