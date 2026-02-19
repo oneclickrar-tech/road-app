@@ -61,16 +61,24 @@
       margin-top: 3px;
       font-weight: 400;
     }
-    .header-logo {
-      height: 64px;
-      width: auto;
+    .header-logo-wrap {
       flex-shrink: 0;
-      display: block;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      padding: 6px 12px 6px 20px;
+      background: linear-gradient(to left, rgba(255,255,255,1) 30%, rgba(255,255,255,0.0) 100%);
     }
-    /* Белый градиент-скос под шапкой */
+    .header-logo {
+      height: 52px;
+      width: auto;
+      display: block;
+      filter: drop-shadow(0 1px 3px rgba(0,0,0,.12));
+    }
+    /* Белый градиент под шапкой */
     .header-fade {
-      height: 10px;
-      background: linear-gradient(to bottom, rgba(74,111,165,.10), transparent);
+      height: 14px;
+      background: linear-gradient(to bottom, rgba(100,140,190,.13), transparent);
     }
 
     /* ── Панель поиска и фильтра ─────────────────────────────────────────── */
@@ -456,10 +464,12 @@
       <h1>Программа работ — I этап 2026</h1>
       <p>Ремонт дорог межмуниципального значения</p>
     </div>
-    <img class="header-logo"
-         src="https://lh3.googleusercontent.com/d/1oACcpg1FQR_nrV7guMppoYOMBrSFUDqF"
-         alt="Дор Альянс"
-         onerror="this.style.display='none'" />
+    <div class="header-logo-wrap">
+      <img class="header-logo"
+           src="https://lh3.googleusercontent.com/d/1oACcpg1FQR_nrV7guMppoYOMBrSFUDqF"
+           alt="Дор Альянс"
+           onerror="this.parentElement.style.display='none'" />
+    </div>
   </div>
 </div>
 <div class="header-fade"></div>
@@ -469,7 +479,7 @@
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
     </svg>
-    <input class="search" id="search" type="search" placeholder="Поиск по объекту, контракту…" />
+    <input class="search" id="search" type="search" placeholder="Поиск по объекту, контракту благо у нас их дохуя…" />
   </div>
   <button class="sync-btn" id="syncBtn" onclick="loadData()">
     <svg id="syncIcon" width="15" height="15" viewBox="0 0 24 24" fill="none"
