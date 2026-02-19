@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Программа работ 2026</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    /* ── Переменные темы ─────────────────────────────────────────────────── */
+    :root {
+      --tg-bg:        var(--tg-theme-bg-color, #ffffff);
+      --tg-secondary: var(--tg-theme-secondary-bg-color, #f4f4f5);
+      --tg-text:      var(--tg-theme-text-color, #111111);
+      --tg-hint:      var(--tg-theme-hint-color, #6b7280);
+      --tg-link:      var(--tg-theme-link-color, #2563eb);
+      --tg-btn:       var(--tg-theme-button-color, #2563eb);
+      --tg-btn-text:  var(--tg-theme-button-text-color, #ffffff);
+      --radius:       12px;
+      --shadow:       0 1px 3px rgba(0,0,0,.10), 0 1px 2px rgba(0,0,0,.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--tg-secondary);
+      color: var(--tg-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px;
+      min-height: 100dvh;
+      padding-bottom: env(safe-area-inset-bottom, 16px);
+    }
+
+    /* ── Шапка ───────────────────────────────────────────────────────────── */
+    .header {
+      background: var(--tg-btn);
+      color: var(--tg-btn-text);
+      padding: 14px 16px 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header h1 {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .header p {
+      font-size: 12px;
+      opacity: .82;
+      margin-top: 2px;
+    }
+
+    /* ── Панель поиска и фильтра ─────────────────────────────────────────── */
+    .toolbar {
+      background: var(--tg-bg);
+      padding: 10px 12px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      border-bottom: 1px solid color-mix(in srgb, var(--tg-hint) 20%, transparent);
+    }
+    .search-wrap {
+      position: relative;
+      flex: 1;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--tg-hint);
+      pointer-events: none;
+    }
+    .search {
+      width: 100%;
+      padding: 8px 10px 8px 34px;
+      border: 1px solid color-mix(in srgb, var(--tg-hint) 30%, transparent);
+      border-radius: 8px;
+      background: var(--tg-secondary);
+      color: var(--tg-text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .search:focus { border-color: var(--tg-btn); }
+    .search::placeholder { color: var(--tg-hint); }
+
+    .sync-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 12px;
+      background: var(--tg-btn);
+      color: var(--tg-btn-text);
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity .15s;
+    }
+    .sync-btn:active { opacity: .75; }
+    .sync-btn.loading svg { animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Статус ──────────────────────────────────────────────────────────── */
+    .status-bar {
+      padding: 6px 16px;
+      font-size: 12px;
+      color: var(--tg-hint);
+      background: var(--tg-secondary);
+    }
+
+    /* ── Список карточек ─────────────────────────────────────────────────── */
+    .list {
+      padding: 8px 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* ── Карточка ────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--tg-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card-header:active { background: color-mix(in srgb, var(--tg-hint) 8%, transparent); }
+
+    .card-num {
+      min-width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--tg-btn);
+      color: var(--tg-btn-text);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .card-main {
+      flex: 1;
+      min-width: 0;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-meta {
+      margin-top: 5px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    /* ── Бейджи ──────────────────────────────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-km   { background: #dbeafe; color: #1d4ed8; }
+    .badge-pto  { background: #fef9c3; color: #92400e; }
+    .badge-tm   { background: #dcfce7; color: #15803d; }
+
+    /* цвета Исполнителей (ПТО) */
+    .pto-Дима   { background: #e0e7ff; color: #3730a3; }
+    .pto-Тимур  { background: #fce7f3; color: #9d174d; }
+    .pto-Натали { background: #ffedd5; color: #9a3412; }
+    .pto-Артем  { background: #d1fae5; color: #065f46; }
+    .pto-Ярослав{ background: #fee2e2; color: #991b1b; }
+    .pto-Марина { background: #ede9fe; color: #5b21b6; }
+    .pto-Лина   { background: #f0fdf4; color: #166534; }
+
+    .chevron {
+      color: var(--tg-hint);
+      transition: transform .25s;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .card.open .chevron { transform: rotate(180deg); }
+
+    /* ── Раскрываемая часть ──────────────────────────────────────────────── */
+    .card-body {
+      display: none;
+      padding: 0 14px 14px;
+      border-top: 1px solid color-mix(in srgb, var(--tg-hint) 15%, transparent);
+    }
+    .card.open .card-body { display: block; }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .detail-item {
+      background: var(--tg-secondary);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+    .detail-item.full { grid-column: 1 / -1; }
+    .detail-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--tg-hint);
+      margin-bottom: 3px;
+    }
+    .detail-value {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--tg-text);
+      word-break: break-word;
+    }
+    .detail-value.empty { color: var(--tg-hint); font-style: italic; font-weight: 400; }
+
+    /* ── Статусные блоки подписантов ─────────────────────────────────────── */
+    .signers {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .signer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      background: var(--tg-secondary);
+      border-radius: 8px;
+      padding: 7px 10px;
+    }
+    .signer-label {
+      font-size: 11px;
+      color: var(--tg-hint);
+      white-space: nowrap;
+    }
+    .signer-value {
+      font-size: 12px;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    /* ── Пустое/загрузка/ошибка ──────────────────────────────────────────── */
+    .state-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 60px 20px;
+      color: var(--tg-hint);
+      text-align: center;
+    }
+    .state-box svg { opacity: .45; }
+    .state-box p { font-size: 14px; }
+    .state-box small { font-size: 12px; }
+
+    .skeleton {
+      background: linear-gradient(90deg,
+        color-mix(in srgb, var(--tg-hint) 12%, transparent) 25%,
+        color-mix(in srgb, var(--tg-hint) 22%, transparent) 50%,
+        color-mix(in srgb, var(--tg-hint) 12%, transparent) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    .sk-card { height: 72px; border-radius: var(--radius); margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Программа работ — I этап 2026</h1>
+  <p>Ремонт дорог межмуниципального значения</p>
+</div>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input class="search" id="search" type="search" placeholder="Поиск по объекту, контракту…" />
+  </div>
+  <button class="sync-btn" id="syncBtn" onclick="loadData()">
+    <svg id="syncIcon" width="15" height="15" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2.5">
+      <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
+      <path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+    </svg>
+    Sync
+  </button>
+</div>
+
+<div class="status-bar" id="statusBar">Загрузка…</div>
+<div class="list" id="list"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// НАСТРОЙКА — замените на ваши значения
+// ═══════════════════════════════════════════════════════════════════════════
+const SHEET_ID   = "https://docs.google.com/spreadsheets/d/1hhO7JqfoTIuCM5HTbt-qnCh-A0tjxuofqJ50COdUfE8/edit?usp=sharing";   // из URL таблицы
+const SHEET_NAME = "Межмуниципалки_2026";                  // имя листа (вкладки)
+// Строка-заголовок (1-based). Данные начинаются со следующей строки.
+const HEADER_ROW = 2;
+// ═══════════════════════════════════════════════════════════════════════════
+
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+// ── Маппинг столбцов (0-based индексы после парсинга) ──────────────────────
+// Порядок: A=0, B=1, C=2 … — подгоните под вашу таблицу
+const COL = {
+  num:        0,   // №
+  title:      1,   // Наименование объекта
+  length:     2,   // Протяжённость, км
+  contract:   3,   // № Контракта
+  pto:        4,   // ПТО (исполнитель)
+  kameral:    5,   // Камерал
+  ourOrder:   6,   // Наш приказ
+  sigForeman: 7,   // Подписант Прораб
+  sigGeo:     8,   // Подписант ГЕО
+  sigMain:    9,   // Подписант Глав. СК
+  sigRks:     10,  // Подписант РКС СК
+  rksOrder:   11,  // РКС приказ
+};
+
+let allRows = [];
+let lastSync = null;
+
+// ── Загрузка данных из Google Sheets ──────────────────────────────────────
+async function loadData() {
+  const btn  = document.getElementById("syncBtn");
+  const icon = document.getElementById("syncIcon");
+  btn.disabled = true;
+  icon.parentElement.classList.add("loading");
+  setStatus("Синхронизация…");
+
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+  try {
+    const res  = await fetch(url);
+    const text = await res.text();
+
+    // Google возвращает JSONP-обёртку, снимаем её
+    const json = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
+
+    const cols = json.table.cols;
+    const rows = json.table.rows;
+
+    // Пропускаем строки до HEADER_ROW (они уже не в индексах — gviz даёт всё)
+    // Первые HEADER_ROW-1 строки считаем шапкой и пропускаем
+    allRows = rows
+      .slice(HEADER_ROW - 1)
+      .map(r => (r.c || []).map(cell => cell?.v ?? cell?.f ?? ""))
+      .filter(r => r[COL.title]);   // только строки с названием объекта
+
+    lastSync = new Date();
+    setStatus(`Объектов: ${allRows.length} · Обновлено: ${fmtTime(lastSync)}`);
+    render(allRows);
+  } catch (e) {
+    setStatus("Ошибка загрузки. Проверьте доступ к таблице.");
+    if (!allRows.length) showError(e);
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+    icon.parentElement.classList.remove("loading");
+  }
+}
+
+// ── Поиск ─────────────────────────────────────────────────────────────────
+document.getElementById("search").addEventListener("input", function () {
+  const q = this.value.trim().toLowerCase();
+  if (!q) { render(allRows); return; }
+  render(allRows.filter(r =>
+    String(r[COL.title]).toLowerCase().includes(q) ||
+    String(r[COL.contract]).toLowerCase().includes(q) ||
+    String(r[COL.num]).toLowerCase().includes(q)
+  ));
+});
+
+// ── Рендер списка ─────────────────────────────────────────────────────────
+function render(rows) {
+  const list = document.getElementById("list");
+
+  if (!rows.length) {
+    list.innerHTML = `
+      <div class="state-box">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <p>Ничего не найдено</p>
+        <small>Попробуйте изменить запрос</small>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = rows.map((r, i) => cardHTML(r, i)).join("");
+
+  // Открытие/закрытие карточек
+  list.querySelectorAll(".card-header").forEach(h => {
+    h.addEventListener("click", () => {
+      const card = h.closest(".card");
+      card.classList.toggle("open");
+      if (tg) tg.HapticFeedback?.impactOccurred("light");
+    });
+  });
+}
+
+// ── HTML карточки ─────────────────────────────────────────────────────────
+function cardHTML(r, idx) {
+  const num      = r[COL.num]      || (idx + 1);
+  const title    = r[COL.title]    || "—";
+  const length   = r[COL.length]   ? `${r[COL.length]} км` : "";
+  const contract = r[COL.contract] || "";
+  const pto      = r[COL.pto]      || "";
+  const kameral  = r[COL.kameral]  || "";
+  const ourOrder = r[COL.ourOrder] || "";
+  const sigFor   = r[COL.sigForeman] || "";
+  const sigGeo   = r[COL.sigGeo]   || "";
+  const sigMain  = r[COL.sigMain]  || "";
+  const sigRks   = r[COL.sigRks]   || "";
+  const rksOrder = r[COL.rksOrder] || "";
+
+  const ptoBadge = pto
+    ? `<span class="badge pto-${pto}">${pto}</span>`
+    : "";
+  const kmBadge = length
+    ? `<span class="badge badge-km">${length}</span>`
+    : "";
+
+  const signers = [
+    ["Прораб",    sigFor],
+    ["ГЕО",       sigGeo],
+    ["Глав. СК",  sigMain],
+    ["РКС СК",    sigRks],
+  ].map(([label, val]) => `
+    <div class="signer-row">
+      <span class="signer-label">${label}</span>
+      <span class="signer-value ${val ? "" : "empty"}">${val || "—"}</span>
+    </div>`).join("");
+
+  return `
+  <div class="card">
+    <div class="card-header">
+      <div class="card-num">${num}</div>
+      <div class="card-main">
+        <div class="card-title">${escHtml(title)}</div>
+        <div class="card-meta">
+          ${kmBadge}
+          ${ptoBadge}
+          ${contract ? `<span class="badge badge-tm">${escHtml(contract)}</span>` : ""}
+        </div>
+      </div>
+      <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5">
+        <path d="m6 9 6 6 6-6"/>
+      </svg>
+    </div>
+
+    <div class="card-body">
+      <div class="detail-grid">
+        <div class="detail-item full">
+          <div class="detail-label">Наименование объекта</div>
+          <div class="detail-value">${escHtml(title)}</div>
+        </div>
+        ${detailItem("Протяжённость", length)}
+        ${detailItem("№ Контракта", contract)}
+        ${detailItem("Камерал", kameral)}
+        ${detailItem("Наш приказ", ourOrder)}
+        ${detailItem("РКС приказ", rksOrder)}
+      </div>
+
+      <div class="signers">
+        <div class="detail-label" style="padding:8px 0 4px">Подписанты</div>
+        ${signers}
+      </div>
+    </div>
+  </div>`;
+}
+
+function detailItem(label, value) {
+  return `
+    <div class="detail-item">
+      <div class="detail-label">${label}</div>
+      <div class="detail-value ${value ? "" : "empty"}">${escHtml(value) || "не указано"}</div>
+    </div>`;
+}
+
+// ── Скелетон загрузки ─────────────────────────────────────────────────────
+function showSkeleton() {
+  document.getElementById("list").innerHTML =
+    Array(6).fill(`<div class="skeleton sk-card"></div>`).join("");
+}
+
+function showError(e) {
+  document.getElementById("list").innerHTML = `
+    <div class="state-box">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4m0 4h.01"/>
+      </svg>
+      <p>Не удалось загрузить данные</p>
+      <small>Убедитесь, что таблица открыта для просмотра по ссылке</small>
+    </div>`;
+}
+
+function setStatus(txt) {
+  document.getElementById("statusBar").textContent = txt;
+}
+function fmtTime(d) {
+  return d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+}
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// ── Старт ─────────────────────────────────────────────────────────────────
+showSkeleton();
+loadData();
+
+// Авто-обновление каждые 5 минут
+setInterval(loadData, 5 * 60 * 1000);
+</script>
+</body>
+</html>
