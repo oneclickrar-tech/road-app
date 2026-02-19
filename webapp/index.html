@@ -403,9 +403,10 @@ async function loadData() {
 
     const rows = json.table.rows;
 
-    // slice(HEADER_ROW) — пропускаем строку 1 (заголовок таблицы) и строку 2 (шапка колонок)
+    // gviz уже съел строку 1 как col labels → rows[0] = строка 2 (шапка), rows[1] = строка 3 (данные)
+    // Пропускаем только шапку (1 строку)
     allRows = rows
-      .slice(HEADER_ROW)
+      .slice(1)
       .map(r => (r.c || []).map(cell => cell?.v ?? cell?.f ?? ""))
       .filter(r => r[COL.title]);
 
