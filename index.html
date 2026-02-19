@@ -289,6 +289,7 @@
     .badge-kameral  { background: #fdfbea; color: #854d0e; }
     .badge-contract { background: #edfbf3; color: #15803d; }
     .badge-date     { background: #f5f7fa; color: #475569; }
+    .badge-sum      { background: #fdf2f8; color: #86198f; font-weight: 700; }
     .badge-prefix   { opacity: .65; font-weight: 500; }
 
     /* цвета Исполнителей (ПТО) */
@@ -500,6 +501,7 @@ const COL = {
   num:        0,   // A — №
   title:      1,   // B — Наименование объекта
   length:     3,   // D — Протяжённость, км
+  sum:        4,   // E — Сумма контракта (руб.)
   contract:   5,   // F — № Контракта
   pto:        6,   // G — ПТО (исполнитель)
   kameral:    7,   // H — Камерал
@@ -684,6 +686,14 @@ function render(rows) {
   });
 }
 
+// ── Форматирование суммы: 1234567.5 → "1 234 567,50 ₽" ───────────────────
+function fmtSum(val) {
+  if (!val && val !== 0) return "";
+  const num = parseFloat(String(val).replace(/\s/g, "").replace(",", "."));
+  if (isNaN(num)) return "";
+  return num.toLocaleString("ru-RU", { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " ₽";
+}
+
 // ── Парсинг контракта: "37/26-СМР от 16.02.26" → { num, date } ────────────
 function parseContract(str) {
   if (!str) return { num: "", date: "" };
@@ -707,6 +717,8 @@ function cardHTML(r, idx) {
   const num      = r[COL.num]      || (idx + 1);
   const title    = r[COL.title]    || "—";
   const length   = r[COL.length]   ? `${r[COL.length]} км` : "";
+  const sumRaw   = r[COL.sum]      || "";
+  const sumFmt   = fmtSum(sumRaw);
   const { num: contractNum, date: contractDate } = parseContract(r[COL.contract]);
   const contract = contractNum;
   const pto      = r[COL.pto]      || "";
@@ -723,6 +735,7 @@ function cardHTML(r, idx) {
   const kameralBadge  = kameral     ? `<span class="badge badge-kameral"><span class="badge-prefix">Камерал:</span> ${escHtml(kameral)}</span>` : "";
   const contractBadge = contractNum ? `<span class="badge badge-contract">${escHtml(contractNum)}</span>` : "";
   const dateBadge     = contractDate? `<span class="badge badge-date">${escHtml(contractDate)}</span>` : "";
+  const sumBadge      = sumFmt      ? `<span class="badge badge-sum">${escHtml(sumFmt)}</span>` : "";
 
   const signers = [
     ["Прораб",         sigFor],
@@ -743,6 +756,7 @@ function cardHTML(r, idx) {
         <div class="card-title">${escHtml(title)}</div>
         <div class="card-meta">
           ${kmBadge}
+          ${sumBadge}
           ${ptoBadge}
           ${kameralBadge}
           ${contractBadge}
@@ -762,6 +776,7 @@ function cardHTML(r, idx) {
           <div class="detail-value">${escHtml(title)}</div>
         </div>
         ${detailItem("Протяжённость", length)}
+        ${detailItem("Сумма контракта", sumFmt)}
         ${detailItem("№ Контракта", contractNum)}
         ${detailItem("Дата заключения", contractDate)}
         ${detailItem("Камерал", kameral)}
