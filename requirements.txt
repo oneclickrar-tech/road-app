@@ -1,5 +1,3 @@
-<<<<<<< HEAD
 python-telegram-bot>=21.0
-=======
-python-telegram-bot>=21.0
->>>>>>> 15bf040375bb8732d64c8339bb43f87038c145d6
+python-telegram-bot[socks]
+fpdf2>=2.7.9
