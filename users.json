@@ -1,1 +1,9 @@
-{"users": []}
+{
+  "users": [
+    {
+      "code": "BQ4CSA",
+      "label": "Нат",
+      "active": true
+    }
+  ]
+}
