@@ -321,6 +321,33 @@
     .badge-contract { background: #edfbf3; color: #15803d; }
     .badge-date     { background: #f5f7fa; color: #475569; }
     .badge-sum      { background: #fdf2f8; color: #86198f; font-weight: 700; }
+
+    /* ── Кнопка ЕИС ────────────────────────────────────────────────────── */
+    .eis-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 12px 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity .15s;
+    }
+    .eis-btn:active { opacity: .75; }
+    .eis-btn-active {
+      background: var(--tg-btn);
+      color: var(--tg-btn-text);
+    }
+    .eis-btn-empty {
+      background: color-mix(in srgb, var(--tg-hint) 15%, transparent);
+      color: var(--tg-hint);
+      cursor: default;
+    }
     .badge-prefix   { opacity: .65; font-weight: 500; }
 
     /* цвета Исполнителей (ПТО) */
@@ -479,7 +506,7 @@
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
     </svg>
-    <input class="search" id="search" type="search" placeholder="Поиск по объекту,а их дохуя…" />
+    <input class="search" id="search" type="search" placeholder="Поиск по объекту, а их дохуя…" />
   </div>
   <button class="sync-btn" id="syncBtn" onclick="loadData()">
     <svg id="syncIcon" width="15" height="15" viewBox="0 0 24 24" fill="none"
@@ -664,6 +691,7 @@ const COL = {
   sigMain:    11,  // L — Подписант Глав. Инженер
   sigRks:     12,  // M — Подписант РКС СК
   rksOrder:   13,  // N — РКС приказ
+  eisUrl:     14,  // O — Ссылка на ЕИС
 };
 
 let allRows = [];
@@ -882,6 +910,7 @@ function cardHTML(r, idx) {
   const sigMain  = r[COL.sigMain]  || "";
   const sigRks   = r[COL.sigRks]   || "";
   const rksOrder = r[COL.rksOrder] || "";
+  const eisUrl   = r[COL.eisUrl]   || "";
 
   const kmBadge       = length      ? `<span class="badge badge-km">${length}</span>` : "";
   const ptoBadge      = pto         ? `<span class="badge pto-${pto}"><span class="badge-prefix">ПТО:</span> ${pto}</span>` : "";
@@ -935,6 +964,20 @@ function cardHTML(r, idx) {
         ${detailItem("Камерал", kameral)}
         ${detailItem("Наш приказ", ourOrder)}
         ${detailItem("РКС приказ", rksOrder)}
+        <div class="detail-item">
+          ${eisUrl
+            ? `<a class="eis-btn eis-btn-active" href="${escAttr(eisUrl)}" target="_blank" rel="noopener">
+                 Перейти в ЕИС
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                   <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                 </svg>
+               </a>`
+            : `<div class="eis-btn eis-btn-empty">
+                 Нет ссылки ЕИС
+               </div>`
+          }
+        </div>
       </div>
 
       <div class="signers">
