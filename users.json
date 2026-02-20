@@ -2,7 +2,12 @@
   "users": [
     {
       "code": "BQ4CSA",
-      "label": "Нат",
+      "label": "ÐÐ°Ñ",
+      "active": true
+    },
+    {
+      "code": "FM4T3Y",
+      "label": "Лиза",
       "active": true
     }
   ]
